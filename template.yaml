@@ -1,0 +1,47 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  nextjs-lambda
+  SAM Template for Next.js on AWS
+
+Parameters:
+  StackFamily:
+    Type: String
+    Default: nextjs-lambda-app
+
+Globals:
+  Function:
+    Timeout: 3
+    Tracing: Active
+
+Resources:
+  NextFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      PackageType: Image
+      MemorySize: 512
+      Timeout: 30
+      Architectures:
+        - x86_64
+      Environment:
+        Variables:
+          AWS_LWA_INVOKE_MODE: response_stream
+          DEBUG: "*"
+      FunctionUrlConfig:
+        AuthType: NONE
+        InvokeMode: RESPONSE_STREAM
+    Metadata:
+      DockerTag: v1
+      DockerContext: .
+      Dockerfile: Dockerfile
+
+Outputs:
+  NextFunction:
+    Value: !GetAtt NextFunction.Arn
+    Export:
+      Name: !Sub "${StackFamily}-next-function-arn"
+
+  NextFunctionUrl:
+    Value: !GetAtt NextFunctionUrl.FunctionUrl
+    Export:
+      Name: !Sub "${StackFamily}-next-function-url"
